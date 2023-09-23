@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using System.Net;
 using System.Net.Sockets;
@@ -105,7 +106,11 @@ void SendRequest(string request, Socket currentSocket)
         }
         if (request == Requests.SendCards.ToString())
         {
-            currentSocket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(context.Cards)));
+            currentSocket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(context.Cards.
+                Include(c => c.LastUserModified).
+                Include(c => c.UserCreated).
+                Include(c => c.Assignee).
+                Include(c => c.Status))));
             Console.WriteLine($"New reply to the request {request} has been sent to {currentSocket.RemoteEndPoint}");
         }
         if (request == Requests.SendUsers.ToString())
