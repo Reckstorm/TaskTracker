@@ -78,6 +78,8 @@ namespace Models
             Role = role;
         }
 
+        public override string ToString() => this.Name;
+
         public override int GetHashCode()
         {
             return Id.GetHashCode();
