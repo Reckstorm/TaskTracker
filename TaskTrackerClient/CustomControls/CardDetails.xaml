@@ -3,104 +3,134 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TaskTrackerClient.CustomControls" 
-             xmlns:viewmodel="clr-namespace:TaskTrackerClient.ViewModel" 
+             xmlns:local="clr-namespace:TaskTrackerClient.CustomControls" xmlns:viewmodel="clr-namespace:TaskTrackerClient.ViewModel"
              d:DataContext="{d:DesignInstance Type=viewmodel:MainVM}"
-             mc:Ignorable="d" 
-             MinWidth="400"
-             MinHeight="300">
-    <Border BorderBrush="Black"
+             mc:Ignorable="d">
+    <Control.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Control.Resources>
+    <Control.Visibility>
+        <Binding Path="IsOpen" Mode="TwoWay" Converter="{StaticResource BooleanToVisibilityConverter}"/>
+    </Control.Visibility>
+    <Grid>
+        <Grid.Background>
+            <SolidColorBrush Opacity="0.9" Color="Gray"/>
+        </Grid.Background>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="6*"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="6*"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border 
+            Grid.Column="1"
+            Grid.Row="1"
+            Margin="10"
+            UseLayoutRounding="True"
+            Background="DarkGray"
+            BorderBrush="Black"
             BorderThickness="1"
             CornerRadius="5">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="10" Color="Black"/>
+            </Border.Effect>
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*"></ColumnDefinition>
+                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition></RowDefinition>
                     <RowDefinition Height="auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0">
-                    <Run Text="ID:"></Run>
-                    <Run Text="{Binding Path=SelectedCard.Id}"></Run>
-                    <Run Text="Title:"></Run>
-                    <Run Text="{Binding Path=SelectedCard.Title}"></Run>
-                </TextBlock>
-                <TextBlock Grid.Row="1">
-                    <Run Text="Description:"></Run>
-                    <Run Text="{Binding Path=SelectedCard.Description}"></Run>
-                </TextBlock>
-            </Grid>
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock 
-                        Grid.Column="0"
-                        Text="Assignee:"></TextBlock>
-                    <ComboBox 
-                        Grid.Column="1"
-                        ItemsSource="{Binding Path=Users}"
-                        SelectedValue="{Binding Path=SelectedCard.Assignee}"></ComboBox>
+                <Grid Grid.Column="0" Grid.Row="0" Margin="5,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock 
+                            Margin="0,5,0,0"
+                            Grid.Row="0">
+                            <Run Text="ID:"></Run>
+                            <Run Text="{Binding SelectedCard.Id}"></Run>
+                        </TextBlock>
+                        <TextBlock Margin="0,5,0,0" Text="Title:"></TextBlock>
+                        <TextBox Text="{Binding SelectedCard.Title, Mode=TwoWay}" MaxLength="100"></TextBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                        <TextBlock>
+                                <Run Text="Description:"></Run>
+                        </TextBlock>
+                        <TextBox Margin="0,10,0,0" Text="{Binding SelectedCard.Description}"
+                                        TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="auto"></TextBox>
+                    </StackPanel>
                 </Grid>
-                <Grid Grid.Row="1" Margin="0,0,0,106" Grid.RowSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock 
-                        Grid.Column="0"
-                        Text="Status:"></TextBlock>
-                    <ComboBox 
-                        Grid.Column="1"
-                        ItemsSource="{Binding Path=Statuses}"
-                        SelectedValue="{Binding Path=SelectedCard.Status}"></ComboBox>
-                </Grid>
-                <Grid Grid.Row="2">
+                <Grid Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Center">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"></RowDefinition>
                         <RowDefinition Height="auto"></RowDefinition>
                         <RowDefinition Height="auto"></RowDefinition>
-                        <RowDefinition Height="auto"></RowDefinition>
-                        <RowDefinition Height="auto"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <TextBlock 
-                            Grid.Row="0">
-                        <Run Text="Created by:"></Run>
-                        <Run Text="{Binding Path=SelectedCard.UserCreated}"></Run>
-                    </TextBlock>
-                    <TextBlock 
-                            Grid.Row="1">
-                        <Run Text="Created on:"></Run>
-                        <Run Text="{Binding Path=SelectedCard.DateTimeCreated}"></Run>
-                    </TextBlock>
-                    <TextBlock 
-                            Grid.Row="2">
-                        <Run Text="Modified by:"></Run>
-                        <Run Text="{Binding Path=SelectedCard.LastUserModified}"></Run>
-                    </TextBlock>
-                    <TextBlock 
-                            Grid.Row="3">
-                        <Run Text="Modified on:"></Run>
-                        <Run Text="{Binding Path=SelectedCard.DateTimeModified}"></Run>
-                    </TextBlock>
-                    <DockPanel 
-                        Grid.Row="4"
-                        LastChildFill="False">
-                        <Button DockPanel.Dock="Right" Margin="5" Content="Cancel"></Button>
-                        <Button DockPanel.Dock="Right" Content="Save"></Button>
-                    </DockPanel>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock 
+                            Margin="0,5,5,0"
+                            Grid.Column="0"
+                            Text="Assignee:"></TextBlock>
+                        <ComboBox 
+                            Grid.Column="1"
+                            MinWidth="160"
+                            ItemsSource="{Binding Users}"
+                            SelectedItem="{Binding SelectedCard.Assignee}"></ComboBox>
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="0,0,0,106" Grid.RowSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock 
+                            Margin="0,5,21,0"
+                            Grid.Column="0"
+                            Text="Status:"></TextBlock>
+                        <ComboBox 
+                            Grid.Column="1"
+                            MinWidth="160"
+                            ItemsSource="{Binding Statuses}"
+                            SelectedItem="{Binding SelectedCard.Status}"></ComboBox>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock 
+                        Grid.Row="0">
+                    <Run Text="Created on:"></Run>
+                    <Run Text="{Binding SelectedCard.DateTimeCreated}"></Run>
+                        </TextBlock>
+                        <TextBlock 
+                        Grid.Row="1">
+                    <Run Text="Modified on:"></Run>
+                    <Run Text="{Binding SelectedCard.DateTimeModified}"></Run>
+                        </TextBlock>
+                    </Grid>
                 </Grid>
+                <DockPanel 
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    LastChildFill="False">
+                    <Button DockPanel.Dock="Right" Margin="5" Content="Cancel" Command="{Binding ViewDetailsCommand}"></Button>
+                    <Button DockPanel.Dock="Right" Content="Save" Command="{Binding SaveCardCommand}"></Button>
+                </DockPanel>
             </Grid>
-        </Grid>
-    </Border>
+        </Border>
+    </Grid>
 </UserControl>

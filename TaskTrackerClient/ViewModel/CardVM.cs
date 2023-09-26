@@ -19,15 +19,38 @@ namespace TaskTrackerClient.ViewModel
         public Card? SelectedCard
         {
             get { return selectedCard; }
-            set
-            {
-                selectedCard = value;
+            set 
+            { 
+                selectedCard = value; 
                 RaisePropertyChanged(nameof(SelectedCard));
             }
         }
 
         public CardVM()
         {
+            //if (!socket.Connected) Connect();
+            //socket.Send(Encoding.Unicode.GetBytes(Requests.SendCards.ToString()));
+            //List<Card> list = new List<Card>();
+            //byte[] data = new byte[] { };
+            //while (data.Length == 0)
+            //{
+            //    data = ReceiveAll(socket);
+            //}
+            //list = JsonSerializer.Deserialize<List<Card>>(Encoding.Unicode.GetString(data));
+            //if (list.Count > 0)
+            //{
+            //    foreach (Card s in list)
+            //    {
+            //        _cards.Add(s);
+            //    }
+            //}
+            RefetchCards();
+            PublicCards = new ReadOnlyObservableCollection<Card>(_cards);
+        }
+
+        public void RefetchCards()
+        {
+            _cards.Clear();
             if (!socket.Connected) Connect();
             socket.Send(Encoding.Unicode.GetBytes(Requests.SendCards.ToString()));
             List<Card> list = new List<Card>();
@@ -44,26 +67,26 @@ namespace TaskTrackerClient.ViewModel
                     _cards.Add(s);
                 }
             }
-            PublicCards = new ReadOnlyObservableCollection<Card>(_cards);
         }
 
         public void AddCommand(Card card)
         {
             _cards.Add(card);
-            SelectedCard = card;
-            SendUpdates();
+            //SelectedCard = card;
         }
 
         public void RemoveCommand(Card card)
         {
             _cards.Remove(card);
-            SendUpdates();
+            //SendUpdates();
         }
 
         public void SendUpdates()
         {
             if (!socket.Connected) Connect();
-            socket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(_cards)));
+            string requestType = JsonSerializer.Serialize(Requests.ReceiveCard.ToString());
+            string requestContent = JsonSerializer.Serialize(SelectedCard);
+            socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
         }
     }
 }

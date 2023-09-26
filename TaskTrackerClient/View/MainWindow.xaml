@@ -17,11 +17,12 @@
         <DC:MainVM/>
     </Window.DataContext>
     <Grid>
-        <!--<CC:CardDetails></CC:CardDetails>-->
+        <CC:CardDetails Panel.ZIndex="10" IsOpen="{Binding IsOpen}"/>
         <DockPanel>
-            <Border DockPanel.Dock="Top" 
-        BorderThickness="0, 0, 0, 1"
-        BorderBrush="Black">
+            <Border 
+                DockPanel.Dock="Top" 
+                BorderThickness="0, 0, 0, 1"
+                BorderBrush="Black">
                 <DockPanel LastChildFill="False" Margin="10">
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                         <TextBlock>
@@ -30,7 +31,7 @@
             <Run />
             <LineBreak/>
                 <Run Text="Role: " FontWeight="DemiBold"/>
-            <Run Text="{Binding SelectedUser.Role}"/>
+            <Run Text="{Binding SelectedUser.Role.RoleName}"/>
             <Run />
                         </TextBlock>
                         <ToggleButton x:Name="Theme"
@@ -47,23 +48,31 @@
                         <TextBlock Text="{Binding ThemeName}"
                        VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button Content="Go"
-                DockPanel.Dock="Right"
-                    Margin="10,0,0,0"></Button>
-                    <TextBox x:Name="Searchbar_tb"
-                 VerticalAlignment="Center"
-                 DockPanel.Dock="Right"
-                 Width="150"></TextBox>
-                    <TextBlock Text="Search: " 
-                   FontWeight="DemiBold"
-                   DockPanel.Dock="Right"
-                   VerticalAlignment="Center"/>
+                    <Button 
+                        Content="Add"
+                        DockPanel.Dock="Right"
+                        Margin="10,0,0,0"
+                        Command="{Binding AddCardCommand}"></Button> 
+                    <Button 
+                        Content="Go"
+                        DockPanel.Dock="Right"
+                        Margin="10,0,0,0"></Button>
+                    <TextBox 
+                        x:Name="Searchbar_tb"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Right"
+                        Width="150"></TextBox>
+                    <TextBlock 
+                        Text="Search: " 
+                        FontWeight="DemiBold"
+                        DockPanel.Dock="Right"
+                        VerticalAlignment="Center"/>
                 </DockPanel>
             </Border>
             <ItemsControl ItemsSource="{Binding Columns}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid Columns="5"/>
+                        <UniformGrid Columns="{Binding Columns.Count}"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>

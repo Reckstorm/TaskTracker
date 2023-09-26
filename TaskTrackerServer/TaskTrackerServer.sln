@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskTrackerServer", "TaskTr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "..\Models\Models.csproj", "{8E9770E2-73DB-4AD4-BB45-C633DA30FDAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTrackerClient", "..\TaskTrackerClient\TaskTrackerClient.csproj", "{C01C2818-FDF9-416B-AC8F-02234E2B4014}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskTrackerClient", "..\TaskTrackerClient\TaskTrackerClient.csproj", "{C01C2818-FDF9-416B-AC8F-02234E2B4014}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

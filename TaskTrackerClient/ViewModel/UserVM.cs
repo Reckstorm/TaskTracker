@@ -28,7 +28,7 @@ namespace TaskTrackerClient.ViewModel
         public UserVM()
         {
             if (!socket.Connected) Connect();
-            socket.Send(Encoding.Unicode.GetBytes(Requests.SendCards.ToString()));
+            socket.Send(Encoding.Unicode.GetBytes(Requests.SendUsers.ToString()));
             List<User> list = new List<User>();
             byte[] data = new byte[] { };
             while (data.Length == 0)
@@ -44,6 +44,7 @@ namespace TaskTrackerClient.ViewModel
                 }
             }
             PublicUsers = new ReadOnlyObservableCollection<User>(_users);
+            SelectedUser = _users[0];
         }
 
         public void AddCommand(User user)

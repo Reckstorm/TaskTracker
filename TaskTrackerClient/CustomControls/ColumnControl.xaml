@@ -4,7 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TaskTrackerClient.CustomControls"
-             xmlns:CC="clr-namespace:TaskTrackerClient.CustomControls"
+             xmlns:CC="clr-namespace:TaskTrackerClient.CustomControls" 
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:viewmodel="clr-namespace:TaskTrackerClient.ViewModel"
+             d:DataContext="{d:DesignInstance Type=viewmodel:MainVM}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Border BorderBrush="Black" BorderThickness="0,0,1,1" CornerRadius="1">
@@ -21,6 +25,7 @@
                 Text="{Binding Status}" 
                 Grid.Row="0"></TextBlock>
             <ListBox 
+                SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectedCard}"
                 ItemsSource="{Binding Cards}" 
                 Grid.Row="1">
                 <ListBox.ItemsPanel>

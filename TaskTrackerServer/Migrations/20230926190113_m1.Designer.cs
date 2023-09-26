@@ -12,8 +12,8 @@ using TaskTrackerServer;
 namespace TaskTrackerServer.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230922214714_init")]
-    partial class init
+    [Migration("20230926190113_m1")]
+    partial class m1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,23 +46,18 @@ namespace TaskTrackerServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LastUserModifiedId")
+                    b.Property<int?>("StatusId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserCreatedId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AssigneeId");
 
-                    b.HasIndex("LastUserModifiedId");
-
-                    b.HasIndex("UserCreatedId");
+                    b.HasIndex("StatusId");
 
                     b.ToTable("Cards");
                 });
@@ -138,21 +133,14 @@ namespace TaskTrackerServer.Migrations
                         .HasForeignKey("AssigneeId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("Models.User", "LastUserModified")
+                    b.HasOne("Models.Status", "Status")
                         .WithMany()
-                        .HasForeignKey("LastUserModifiedId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Models.User", "UserCreated")
-                        .WithMany()
-                        .HasForeignKey("UserCreatedId")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Assignee");
 
-                    b.Navigation("LastUserModified");
-
-                    b.Navigation("UserCreated");
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("Models.User", b =>

@@ -12,8 +12,6 @@ namespace Models
         private int id;
         private string title;
         private string description;
-        private User? userCreated;
-        private User? lastUserModified;
         private User? assignee;
         private Status? status;
         private DateTime dateTimeCreated;
@@ -44,24 +42,6 @@ namespace Models
             {
                 description = value;
                 RaisePropertyChanged(nameof(Description));
-            } 
-        }
-        public User? UserCreated 
-        { 
-            get => userCreated; 
-            set 
-            {
-                userCreated = value;
-                RaisePropertyChanged(nameof(UserCreated));
-            } 
-        }
-        public User? LastUserModified 
-        { 
-            get => lastUserModified; 
-            set 
-            {
-                lastUserModified = value;
-                RaisePropertyChanged(nameof(LastUserModified));
             } 
         }
         public User? Assignee 
@@ -105,19 +85,16 @@ namespace Models
             Id = 0;
             Title = string.Empty;
             Description = string.Empty;
-            UserCreated = null;
-            LastUserModified = null;
             Status = null;
             DateTimeCreated = DateTime.MinValue;
             DateTimeModified = DateTime.MinValue;
         }
 
-        public Card(string title, string description, User userCreated, User lastUserModified, Status status, DateTime dateTimeCreated, DateTime dateTimeModified)
+        public Card(string title, string description, User assignee, Status status, DateTime dateTimeCreated, DateTime dateTimeModified)
         {
             Title = title;
             Description = description;
-            UserCreated = userCreated;
-            LastUserModified = lastUserModified;
+            Assignee = assignee;
             Status = status;
             DateTimeCreated = dateTimeCreated;
             DateTimeModified = dateTimeModified;
@@ -125,8 +102,7 @@ namespace Models
 
         public override string ToString() => $"{Id}:{Title}:{Status}";
 
-        public override int GetHashCode() => Id.GetHashCode() ;
-
+        public override int GetHashCode() => Id.GetHashCode();
         public override bool Equals(object? obj)
         {
             obj = obj as Card;

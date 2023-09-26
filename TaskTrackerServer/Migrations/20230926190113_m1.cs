@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TaskTrackerServer.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class m1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -66,9 +66,8 @@ namespace TaskTrackerServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserCreatedId = table.Column<int>(type: "int", nullable: true),
-                    LastUserModifiedId = table.Column<int>(type: "int", nullable: true),
                     AssigneeId = table.Column<int>(type: "int", nullable: true),
+                    StatusId = table.Column<int>(type: "int", nullable: true),
                     DateTimeCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateTimeModified = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -76,18 +75,13 @@ namespace TaskTrackerServer.Migrations
                 {
                     table.PrimaryKey("PK_Cards", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Cards_Statuses_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "Statuses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Cards_Users_AssigneeId",
                         column: x => x.AssigneeId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Cards_Users_LastUserModifiedId",
-                        column: x => x.LastUserModifiedId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Cards_Users_UserCreatedId",
-                        column: x => x.UserCreatedId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -98,14 +92,9 @@ namespace TaskTrackerServer.Migrations
                 column: "AssigneeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cards_LastUserModifiedId",
+                name: "IX_Cards_StatusId",
                 table: "Cards",
-                column: "LastUserModifiedId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Cards_UserCreatedId",
-                table: "Cards",
-                column: "UserCreatedId");
+                column: "StatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RoleId",

@@ -46,18 +46,20 @@ void ProcessConncetion(Socket? clientSocket)
             {
                 if (!clientSocket.Connected) break;
                 data = ReceiveAll(clientSocket);
+                if (data.Length == 0) continue;
                 string temp = Encoding.Unicode.GetString(data);
                 Console.ForegroundColor = ConsoleColor.Blue;
 
-                if (temp == Requests.SendStatuses.ToString()) SendRequest(temp, clientSocket);
-                if (temp == Requests.SendRoles.ToString()) SendRequest(temp, clientSocket);
-                if (temp == Requests.SendCards.ToString()) SendRequest(temp, clientSocket);
-                if (temp == Requests.SendUsers.ToString()) SendRequest(temp, clientSocket);
+                if (temp.Contains(Requests.SendStatuses.ToString())) SendRequest(Requests.SendStatuses.ToString(), clientSocket);
+                if (temp.Contains(Requests.SendRoles.ToString())) SendRequest(Requests.SendRoles.ToString(), clientSocket);
+                if (temp.Contains(Requests.SendCards.ToString())) SendRequest(Requests.SendCards.ToString(), clientSocket);
+                if (temp.Contains(Requests.SendUsers.ToString())) SendRequest(Requests.SendUsers.ToString(), clientSocket);
 
-                if (temp == Requests.ReceiveStatuses.ToString()) ReceiveRequest(temp, clientSocket);
-                if (temp == Requests.ReceiveRoles.ToString()) ReceiveRequest(temp, clientSocket);
-                if (temp == Requests.ReceiveCards.ToString()) ReceiveRequest(temp, clientSocket);
-                if (temp == Requests.ReceiveUsers.ToString()) ReceiveRequest(temp, clientSocket);
+                if (temp.Contains(Requests.ReceiveStatuses.ToString())) ReceiveRequest(Requests.ReceiveStatuses.ToString(), temp, clientSocket);
+                if (temp.Contains(Requests.ReceiveRoles.ToString())) ReceiveRequest(Requests.ReceiveRoles.ToString(), temp, clientSocket);
+                if (temp.Contains(Requests.ReceiveCards.ToString())) ReceiveRequest(Requests.ReceiveCards.ToString(), temp, clientSocket);
+                if (temp.Contains(Requests.ReceiveCard.ToString())) ReceiveRequest(Requests.ReceiveCard.ToString(), temp, clientSocket);
+                if (temp.Contains(Requests.ReceiveUsers.ToString())) ReceiveRequest(Requests.ReceiveUsers.ToString(), temp, clientSocket);
             }
             clientSocket.Close();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -107,52 +109,70 @@ void SendRequest(string request, Socket currentSocket)
         if (request == Requests.SendCards.ToString())
         {
             currentSocket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(context.Cards.
-                Include(c => c.LastUserModified).
-                Include(c => c.UserCreated).
                 Include(c => c.Assignee).
                 Include(c => c.Status))));
             Console.WriteLine($"New reply to the request {request} has been sent to {currentSocket.RemoteEndPoint}");
         }
         if (request == Requests.SendUsers.ToString())
         {
-            currentSocket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(context.Users)));
+            currentSocket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(context.Users.Include(c => c.Role))));
             Console.WriteLine($"New reply to the request {request} has been sent to {currentSocket.RemoteEndPoint}");
         }
     }
 }
 
-void ReceiveRequest(string request, Socket currentSocket)
+void ReceiveRequest(string request, string inboundData, Socket currentSocket)
 {
     Console.WriteLine($"New {request} request from client {currentSocket.RemoteEndPoint}");
     using (Context context = GetContext())
     {
-        byte[] data = ReceiveAll(currentSocket);
-        string temp = Encoding.Unicode.GetString(data);
+        inboundData = $"{inboundData.Substring(inboundData.IndexOf("&") + 1)}";
         if (request == Requests.ReceiveStatuses.ToString())
         {
             context.Statuses.RemoveRange(context.Statuses);
-            context.Statuses.UpdateRange(JsonSerializer.Deserialize<List<Status>>(temp));
+            context.Statuses.AddRange(JsonSerializer.Deserialize<List<Status>>(inboundData));
             context.SaveChanges();
             Console.WriteLine($"{request} has been processed by the server");
         }
         if (request == Requests.ReceiveRoles.ToString())
         {
             context.Roles.RemoveRange(context.Roles);
-            context.Roles.UpdateRange(JsonSerializer.Deserialize<List<Role>>(temp));
+            context.Roles.AddRange(JsonSerializer.Deserialize<List<Role>>(inboundData));
             context.SaveChanges();
             Console.WriteLine($"{request} has been processed by the server");
         }
         if (request == Requests.ReceiveCards.ToString())
         {
             context.Cards.RemoveRange(context.Cards);
-            context.Cards.UpdateRange(JsonSerializer.Deserialize<List<Card>>(temp));
+            context.Cards.AddRange(JsonSerializer.Deserialize<List<Card>>(inboundData));
+            context.SaveChanges();
+            Console.WriteLine($"{request} has been processed by the server");
+        }
+        if (request == Requests.ReceiveCard.ToString())
+        {
+            Card temp = JsonSerializer.Deserialize<Card>(inboundData);
+            if (context.Cards.Contains(temp))
+            {
+                Card existing = context.Cards.FirstOrDefault(x => x.Equals(temp));
+                existing.Title = temp.Title;
+                existing.Description = temp.Description;
+                existing.Assignee = temp.Assignee;
+                existing.Status = temp.Status;
+                existing.DateTimeCreated = temp.DateTimeCreated;
+                existing.DateTimeModified = DateTime.Now;
+                context.Cards.Update(existing);
+            }
+            else
+            {
+                context.Cards.Attach(temp).State = EntityState.Added;
+            }
             context.SaveChanges();
             Console.WriteLine($"{request} has been processed by the server");
         }
         if (request == Requests.ReceiveUsers.ToString())
         {
             context.Users.RemoveRange(context.Users);
-            context.Users.UpdateRange(JsonSerializer.Deserialize<List<User>>(temp));
+            context.Users.AddRange(JsonSerializer.Deserialize<List<User>>(inboundData));
             context.SaveChanges();
             Console.WriteLine($"{request} has been processed by the server");
         }

@@ -19,6 +19,8 @@ namespace Models
         SendUser,
         ReceiveUser,
         SendCards,
-        ReceiveCards
+        ReceiveCards,
+        ReceiveCard,
+        RemoveCard
     }
 }

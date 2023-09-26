@@ -12,8 +12,8 @@ using TaskTrackerServer;
 namespace TaskTrackerServer.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230921144345_UpdateCardFields")]
-    partial class UpdateCardFields
+    [Migration("20230926190321_m2")]
+    partial class m2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,9 +46,6 @@ namespace TaskTrackerServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LastUserModifiedId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("StatusId")
                         .HasColumnType("int");
 
@@ -56,18 +53,11 @@ namespace TaskTrackerServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserCreatedId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AssigneeId");
 
-                    b.HasIndex("LastUserModifiedId");
-
                     b.HasIndex("StatusId");
-
-                    b.HasIndex("UserCreatedId");
 
                     b.ToTable("Cards");
                 });
@@ -141,30 +131,16 @@ namespace TaskTrackerServer.Migrations
                     b.HasOne("Models.User", "Assignee")
                         .WithMany()
                         .HasForeignKey("AssigneeId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Models.User", "LastUserModified")
-                        .WithMany()
-                        .HasForeignKey("LastUserModifiedId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Models.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Models.User", "UserCreated")
-                        .WithMany()
-                        .HasForeignKey("UserCreatedId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Assignee");
 
-                    b.Navigation("LastUserModified");
-
                     b.Navigation("Status");
-
-                    b.Navigation("UserCreated");
                 });
 
             modelBuilder.Entity("Models.User", b =>
@@ -172,7 +148,7 @@ namespace TaskTrackerServer.Migrations
                     b.HasOne("Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Role");
                 });
