@@ -8,19 +8,16 @@ namespace Models
 {
     public enum Requests
     {
-        SendStatuses,
-        ReceiveStatuses,
-        SendAll,
-        ReceiveAll,
         SendRoles,
-        ReceiveRoles,
+        SendStatuses,
         SendUsers,
-        ReceiveUsers,
         SendUser,
-        ReceiveUser,
         SendCards,
-        ReceiveCards,
+        ReceiveStatus,
+        ReceiveUser,
         ReceiveCard,
+        RemoveStatus,
+        RemoveUser,
         RemoveCard
     }
 }

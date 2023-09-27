@@ -76,6 +76,7 @@ namespace TaskTrackerClient.ViewModel
         public DelegateCommand ViewDetailsCommand { get; }
         public DelegateCommand SaveCardCommand { get; }
         public DelegateCommand AddCardCommand { get; }
+        public DelegateCommand RemoveCardCommand { get; }
         public ObservableCollection<Column> Columns { get; set; }
 
         public MainVM()
@@ -105,11 +106,8 @@ namespace TaskTrackerClient.ViewModel
             });
             SaveCardCommand = new DelegateCommand(() =>
             {
-                _cardModel.SendUpdates();
-                IsOpen = !IsOpen;
-                SelectedCard = null;
-                _cardModel.RefetchCards();
-                CreateColumns();
+                _cardModel.SendNewOrUpdatedCard();
+                ToggleModalAndRerenderColumns();
             });
             AddCardCommand = new DelegateCommand(() =>
             {
@@ -117,9 +115,21 @@ namespace TaskTrackerClient.ViewModel
                 temp.DateTimeCreated = DateTime.Now;
                 temp.DateTimeModified = DateTime.Now;
                 SelectedCard = temp;
-                _cardModel.AddCommand(temp);
-                IsOpen = true;
+                IsOpen = !IsOpen;
             });
+            RemoveCardCommand = new DelegateCommand(() =>
+            {
+                _cardModel.SendRemoveCard();
+                ToggleModalAndRerenderColumns();
+            });
+        }
+
+        public void ToggleModalAndRerenderColumns()
+        {
+            IsOpen = !IsOpen;
+            SelectedCard = null;
+            _cardModel.RefetchCards();
+            CreateColumns();
         }
 
         public void CreateColumns()

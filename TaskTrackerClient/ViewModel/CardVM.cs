@@ -28,22 +28,6 @@ namespace TaskTrackerClient.ViewModel
 
         public CardVM()
         {
-            //if (!socket.Connected) Connect();
-            //socket.Send(Encoding.Unicode.GetBytes(Requests.SendCards.ToString()));
-            //List<Card> list = new List<Card>();
-            //byte[] data = new byte[] { };
-            //while (data.Length == 0)
-            //{
-            //    data = ReceiveAll(socket);
-            //}
-            //list = JsonSerializer.Deserialize<List<Card>>(Encoding.Unicode.GetString(data));
-            //if (list.Count > 0)
-            //{
-            //    foreach (Card s in list)
-            //    {
-            //        _cards.Add(s);
-            //    }
-            //}
             RefetchCards();
             PublicCards = new ReadOnlyObservableCollection<Card>(_cards);
         }
@@ -69,19 +53,15 @@ namespace TaskTrackerClient.ViewModel
             }
         }
 
-        public void AddCommand(Card card)
+        public void SendRemoveCard()
         {
-            _cards.Add(card);
-            //SelectedCard = card;
+            if (!socket.Connected) Connect();
+            string requestType = JsonSerializer.Serialize(Requests.RemoveCard.ToString());
+            string requestContent = JsonSerializer.Serialize(SelectedCard);
+            socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
         }
 
-        public void RemoveCommand(Card card)
-        {
-            _cards.Remove(card);
-            //SendUpdates();
-        }
-
-        public void SendUpdates()
+        public void SendNewOrUpdatedCard()
         {
             if (!socket.Connected) Connect();
             string requestType = JsonSerializer.Serialize(Requests.ReceiveCard.ToString());

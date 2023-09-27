@@ -16,6 +16,8 @@ namespace TaskTrackerClient.ViewModel
         static protected Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         protected async void Connect()
         {
+            socket.SendTimeout = 500;
+            socket.ReceiveTimeout = 500;
             try
             {
                 await socket.ConnectAsync(IP, PORT);
