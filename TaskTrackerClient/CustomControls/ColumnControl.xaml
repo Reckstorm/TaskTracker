@@ -10,6 +10,7 @@
              xmlns:viewmodel="clr-namespace:TaskTrackerClient.ViewModel"
              d:DataContext="{d:DesignInstance Type=viewmodel:MainVM}"
              mc:Ignorable="d" 
+             x:Name="ColumnRoot"
              d:DesignHeight="450" d:DesignWidth="800">
     <Border BorderBrush="Black" BorderThickness="0,0,1,1" CornerRadius="1">
         <Grid>
@@ -25,9 +26,17 @@
                 Text="{Binding Status}" 
                 Grid.Row="0"></TextBlock>
             <ListBox 
+                AllowDrop="True"
+                Drop="ListBox_Drop"
+                DragLeave="ListBox_DragLeave"
                 SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectedCard}"
                 ItemsSource="{Binding Cards}" 
                 Grid.Row="1">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Drop">
+                        <prism:InvokeCommandAction Command="{Binding SaveCardOnDropCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel 
@@ -38,7 +47,9 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <CC:CardTile></CC:CardTile>
+                        <CC:CardTile 
+                            IsHitTestVisible="{Binding IsCardHitTestVisible, ElementName=ColumnRoot}"
+                            MouseMove="CardTile_MouseMove"></CC:CardTile>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

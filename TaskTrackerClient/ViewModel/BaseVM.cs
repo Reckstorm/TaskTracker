@@ -1,9 +1,11 @@
-﻿using Prism.Mvvm;
+﻿using Prism.Commands;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -13,11 +15,12 @@ namespace TaskTrackerClient.ViewModel
     {
         protected const int PORT = 4444;
         protected const string IP = "127.0.0.1";
-        static protected Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        static public Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
         protected async void Connect()
         {
-            socket.SendTimeout = 500;
-            socket.ReceiveTimeout = 500;
+            socket.SendTimeout = 100;
+            socket.ReceiveTimeout = 100;
             try
             {
                 await socket.ConnectAsync(IP, PORT);

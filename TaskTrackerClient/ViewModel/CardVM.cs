@@ -32,11 +32,12 @@ namespace TaskTrackerClient.ViewModel
             PublicCards = new ReadOnlyObservableCollection<Card>(_cards);
         }
 
-        public void RefetchCards()
+        public async void RefetchCards()
         {
             _cards.Clear();
             if (!socket.Connected) Connect();
-            socket.Send(Encoding.Unicode.GetBytes(Requests.SendCards.ToString()));
+            //socket.Send(Encoding.Unicode.GetBytes(Requests.SendCards.ToString()));
+            RequestCards();
             List<Card> list = new List<Card>();
             byte[] data = new byte[] { };
             while (data.Length == 0)
@@ -53,20 +54,30 @@ namespace TaskTrackerClient.ViewModel
             }
         }
 
+        private async Task RequestCards()
+        {
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendCards, ""));
+            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
+        }
+
         public void SendRemoveCard()
         {
             if (!socket.Connected) Connect();
-            string requestType = JsonSerializer.Serialize(Requests.RemoveCard.ToString());
-            string requestContent = JsonSerializer.Serialize(SelectedCard);
-            socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
+            //string requestType = JsonSerializer.Serialize(Requests.RemoveCard.ToString());
+            //string requestContent = JsonSerializer.Serialize(SelectedCard);
+            //socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.RemoveCard, JsonSerializer.Serialize(SelectedCard)));
+            socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
 
         public void SendNewOrUpdatedCard()
         {
             if (!socket.Connected) Connect();
-            string requestType = JsonSerializer.Serialize(Requests.ReceiveCard.ToString());
-            string requestContent = JsonSerializer.Serialize(SelectedCard);
-            socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
+            //string requestType = JsonSerializer.Serialize(Requests.ReceiveCard.ToString());
+            //string requestContent = JsonSerializer.Serialize(SelectedCard);
+            //socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.ReceiveCard, JsonSerializer.Serialize(SelectedCard)));
+            socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
     }
 }

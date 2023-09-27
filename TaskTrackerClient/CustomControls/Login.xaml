@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="TaskTrackerClient.CustomControls.Login"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TaskTrackerClient.CustomControls" 
+             mc:Ignorable="d">
+    <Control.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Control.Resources>
+    <Control.Visibility>
+        <Binding Path="IsVisible" Mode="TwoWay" Converter="{StaticResource BooleanToVisibilityConverter}"/>
+    </Control.Visibility>
+    <Grid>
+        <Grid.Background>
+            <SolidColorBrush Color="Gray"/>
+        </Grid.Background>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border 
+            Grid.Column="1"
+            Grid.Row="1"
+            Margin="10"
+            UseLayoutRounding="True"
+            BorderBrush="Black"
+            Background="DarkGray"
+            BorderThickness="1"
+            CornerRadius="5">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="10" Color="Black"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <StackPanel 
+                    Grid.Row="0"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+                    <TextBlock 
+                        Margin="0,15,30,0"
+                        Text="Email:"></TextBlock>
+                    <TextBox 
+                        Margin="0,15,0,0"
+                        MinWidth="150"
+                        Text="{Binding Username}"></TextBox>
+                </StackPanel>
+                <StackPanel 
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+                    <TextBlock 
+                        Margin="0,15,5,0"
+                        Text="Password:"></TextBlock>
+                    <local:BindablePasswordBox
+                        Password="{Binding Password, Mode=TwoWay}"
+                        MinWidth="150"></local:BindablePasswordBox>
+                </StackPanel>
+                <TextBlock 
+                    Grid.Row="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="{Binding ErrorStr}"></TextBlock>
+                <StackPanel
+                    Grid.Row="3"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+                    <Button 
+                        MinWidth="80"
+                        Content="Login"
+                        Command="{Binding LoginCommand}"></Button>
+                    <Button 
+                        MinWidth="80"
+                        Margin="10,0,0,0"
+                        Content="Exit"
+                        Command="{Binding ExitCommand}"></Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

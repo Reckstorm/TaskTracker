@@ -28,7 +28,7 @@ namespace TaskTrackerClient.ViewModel
         public UserVM()
         {
             if (!socket.Connected) Connect();
-            socket.Send(Encoding.Unicode.GetBytes(Requests.SendUsers.ToString()));
+            RequestUsers();
             List<User> list = new List<User>();
             byte[] data = new byte[] { };
             while (data.Length == 0)
@@ -38,13 +38,19 @@ namespace TaskTrackerClient.ViewModel
             list = JsonSerializer.Deserialize<List<User>>(Encoding.Unicode.GetString(data));
             if (list.Count > 0)
             {
-                foreach (User s in list)
+                foreach (User u in list)
                 {
-                    _users.Add(s);
+                    _users.Add(u);
                 }
             }
             PublicUsers = new ReadOnlyObservableCollection<User>(_users);
-            SelectedUser = _users[0];
+            //SelectedUser = _users[0];
+        }
+
+        private async Task RequestUsers()
+        {
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendUsers, ""));
+            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
 
         public void AddCommand(User user)

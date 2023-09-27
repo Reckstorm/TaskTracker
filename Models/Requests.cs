@@ -18,6 +18,7 @@ namespace Models
         ReceiveCard,
         RemoveStatus,
         RemoveUser,
-        RemoveCard
+        RemoveCard,
+        ConnectionClose
     }
 }

@@ -29,8 +29,9 @@ namespace TaskTrackerClient.ViewModel
 
         public StatusVM()
         {
-            if(!socket.Connected) Connect();
-            socket.Send(Encoding.Unicode.GetBytes(Requests.SendStatuses.ToString()));
+            if (!socket.Connected) Connect();
+            //socket.Send(Encoding.Unicode.GetBytes(Requests.SendStatuses.ToString()));
+            RequestStatuses();
             List<Status> list = new List<Status>();
             byte[] data = new byte[] { };
             while (data.Length == 0)
@@ -40,12 +41,18 @@ namespace TaskTrackerClient.ViewModel
             list = JsonSerializer.Deserialize<List<Status>>(Encoding.Unicode.GetString(data));
             if (list.Count > 0)
             {
-                foreach (Status s in list)
+                foreach (Status item in list)
                 {
-                    _statuses.Add(s);
+                    _statuses.Add(item);
                 }
             }
             PublicStatuses = new ReadOnlyObservableCollection<Status>(_statuses);
+        }
+
+        private async Task RequestStatuses()
+        {
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendStatuses, ""));
+            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
 
         public void AddCommand(Status status)
