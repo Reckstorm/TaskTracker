@@ -27,8 +27,16 @@ namespace TaskTrackerClient.ViewModel
 
         public UserVM()
         {
-            if (!socket.Connected) Connect();
             RequestUsers();
+            PublicUsers = new ReadOnlyObservableCollection<User>(_users);
+        }
+
+        public async Task RequestUsers()
+        {
+            if (!socket.Connected) await Connect();
+            if(_users.Count > 0) _users.Clear();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendUsers, "", true));
+            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
             List<User> list = new List<User>();
             byte[] data = new byte[] { };
             while (data.Length == 0)
@@ -43,33 +51,32 @@ namespace TaskTrackerClient.ViewModel
                     _users.Add(u);
                 }
             }
-            PublicUsers = new ReadOnlyObservableCollection<User>(_users);
-            //SelectedUser = _users[0];
         }
 
-        private async Task RequestUsers()
-        {
-            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendUsers, ""));
-            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
-        }
-
-        public void AddCommand(User user)
+        public void AddUser(User user)
         {
             _users.Add(user);
             SelectedUser = user;
-            SendUpdates();
         }
 
-        public void RemoveCommand(User user)
+        public void RemoveUser()
         {
-            _users.Remove(user);
-            SendUpdates();
+            SendRemoveUser();
+            RequestUsers();
         }
 
-        public void SendUpdates()
+        public async void SendRemoveUser()
         {
-            if (!socket.Connected) Connect();
-            socket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(_users)));
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.RemoveUser, JsonSerializer.Serialize(SelectedUser), true));
+            socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
+        }
+
+        public async void SendNewOrUpdatedUser()
+        {
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.ReceiveUser, JsonSerializer.Serialize(SelectedUser), true));
+            socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
     }
 }

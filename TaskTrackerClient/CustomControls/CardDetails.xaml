@@ -3,11 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TaskTrackerClient.CustomControls" xmlns:viewmodel="clr-namespace:TaskTrackerClient.ViewModel"
+             xmlns:local="clr-namespace:TaskTrackerClient.CustomControls" 
+             xmlns:viewmodel="clr-namespace:TaskTrackerClient.ViewModel" 
+             xmlns:converters="clr-namespace:TaskTrackerClient.Converters"
              d:DataContext="{d:DesignInstance Type=viewmodel:MainVM}"
              mc:Ignorable="d">
     <Control.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter"/>
     </Control.Resources>
     <Control.Visibility>
         <Binding Path="IsOpen" Mode="TwoWay" Converter="{StaticResource BooleanToVisibilityConverter}"/>
@@ -134,6 +137,7 @@
                     Grid.Row="2"
                     Margin="5,0,0,0"
                     HorizontalAlignment="Left"
+                    Visibility="{Binding Path=CurrentUser, Converter={StaticResource RoleToVisibilityConverter}, ConverterParameter=Admin}"
                     Content="Remove" Command="{Binding RemoveCardCommand}"></Button>
             </Grid>
         </Border>

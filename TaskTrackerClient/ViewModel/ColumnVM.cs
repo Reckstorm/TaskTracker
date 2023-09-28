@@ -61,8 +61,8 @@ namespace TaskTrackerClient.ViewModel
 
         public async void SaveCardOnDrop()
         {
-            if (!socket.Connected) Connect();
-            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.ReceiveCard, JsonSerializer.Serialize(IncomingCard)));
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.ReceiveCard, JsonSerializer.Serialize(IncomingCard), true));
             await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
 

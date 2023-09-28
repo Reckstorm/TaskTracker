@@ -16,21 +16,11 @@ using System.Windows.Shapes;
 namespace TaskTrackerClient.CustomControls
 {
     /// <summary>
-    /// Interaction logic for Login.xaml
+    /// Interaction logic for UserList.xaml
     /// </summary>
-    public partial class Login : UserControl
+    public partial class UserList : UserControl
     {
-        public bool IsLoginOpen
-        {
-            get { return (bool)GetValue(IsLoginOpenProperty); }
-            set { SetValue(IsLoginOpenProperty, value); }
-        }
-
-        public static readonly DependencyProperty IsLoginOpenProperty =
-            DependencyProperty.Register("IsLoginOpen", typeof(bool), typeof(Login), new PropertyMetadata(true));
-
-
-        public Login()
+        public UserList()
         {
             InitializeComponent();
         }

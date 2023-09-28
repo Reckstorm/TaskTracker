@@ -17,10 +17,10 @@ namespace TaskTrackerClient.ViewModel
         protected const string IP = "127.0.0.1";
         static public Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-        protected async void Connect()
+        protected async Task Connect()
         {
-            socket.SendTimeout = 100;
-            socket.ReceiveTimeout = 100;
+            socket.SendTimeout = 200;
+            socket.ReceiveTimeout = 200;
             try
             {
                 await socket.ConnectAsync(IP, PORT);
@@ -28,6 +28,7 @@ namespace TaskTrackerClient.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+                Environment.Exit(0);
             }
         }
 

@@ -29,9 +29,16 @@ namespace TaskTrackerClient.ViewModel
 
         public StatusVM()
         {
-            if (!socket.Connected) Connect();
-            //socket.Send(Encoding.Unicode.GetBytes(Requests.SendStatuses.ToString()));
             RequestStatuses();
+            PublicStatuses = new ReadOnlyObservableCollection<Status>(_statuses);
+        }
+
+        public async Task RequestStatuses()
+        {
+            if (!socket.Connected) await Connect();
+            if (_statuses.Count > 0) _statuses.Clear();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendStatuses, "", true));
+            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
             List<Status> list = new List<Status>();
             byte[] data = new byte[] { };
             while (data.Length == 0)
@@ -46,32 +53,32 @@ namespace TaskTrackerClient.ViewModel
                     _statuses.Add(item);
                 }
             }
-            PublicStatuses = new ReadOnlyObservableCollection<Status>(_statuses);
         }
 
-        private async Task RequestStatuses()
-        {
-            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendStatuses, ""));
-            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
-        }
-
-        public void AddCommand(Status status)
+        public void AddStatus(Status status)
         {
             _statuses.Add(status);
             SelectedStatus = status;
-            SendUpdates();
         }
 
-        public void RemoveCommand(Status status)
+        public void RemoveStatus()
         {
-            _statuses.Remove(status);
-            SendUpdates();
+            SendRemoveStatus();
+            RequestStatuses();
         }
 
-        public void SendUpdates()
+        public async void SendRemoveStatus()
         {
-            if (!socket.Connected) Connect();
-            socket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(_statuses)));
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.RemoveStatus, JsonSerializer.Serialize(SelectedStatus), true));
+            socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
+        }
+
+        public async void SendNewOrUpdatedStatus()
+        {
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.ReceiveStatus, JsonSerializer.Serialize(SelectedStatus), true));
+            socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
     }
 }

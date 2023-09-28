@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="TaskTrackerClient.CustomControls.StatusList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TaskTrackerClient.CustomControls" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/" 
+             xmlns:proxy="clr-namespace:TaskTrackerClient.Proxy"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Control.Resources>
+        <proxy:BindingProxy x:Key="proxy" Data="{Binding}" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Control.Resources>
+    <Control.Visibility>
+        <Binding Path="IsStatusListOpen" Mode="TwoWay" Converter="{StaticResource BooleanToVisibilityConverter}"/>
+    </Control.Visibility>
+    <Grid>
+        <Grid.Background>
+            <SolidColorBrush Opacity="0.9" Color="Gray"/>
+        </Grid.Background>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border 
+        Grid.Column="1"
+        Grid.Row="1"
+        Margin="10"
+        UseLayoutRounding="True"
+        Background="DarkGray"
+        BorderBrush="Black"
+        BorderThickness="1"
+        CornerRadius="5">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="10" Color="Black"/>
+            </Border.Effect>
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <DataGrid 
+                SelectedItem="{Binding SelectedStatus}"
+                ItemsSource="{Binding Statuses}" 
+                AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Path=Id}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Path=StatusName}"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="LostFocus">
+                            <prism:InvokeCommandAction Command="{Binding SaveStatusCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </DataGrid>
+                <DockPanel
+                Margin="5"
+                Grid.Row="1"
+                LastChildFill="False">
+                    <Button 
+                    MinWidth="80"
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Left"
+                    Content="Remove"
+                    Command="{Binding RemoveStatusCommand}"></Button>
+                    <Button 
+                    MinWidth="80"
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Left"
+                    Content="Add"
+                    Command="{Binding AddStatusCommand}"></Button>
+                    <Button 
+                    DockPanel.Dock="Right"
+                    MinWidth="80"
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Left"
+                    Content="Close"
+                    Command="{Binding ToggleStatusListVisible}"></Button>
+                </DockPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

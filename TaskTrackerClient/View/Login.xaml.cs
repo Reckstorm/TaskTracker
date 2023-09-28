@@ -27,7 +27,8 @@ namespace TaskTrackerClient.View
             {
                 if (this.IsVisible == false && this.IsLoaded && Thread.CurrentPrincipal != null)
                 {
-                    new MainWindow().Show();
+                    Application.Current.MainWindow = new MainWindow();
+                    Application.Current.MainWindow.Show();
                     this.Close();
                 }
             };

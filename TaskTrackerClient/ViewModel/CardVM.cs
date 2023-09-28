@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using MaterialDesignThemes.Wpf;
+using Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,6 +9,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using Card = Models.Card;
 
 namespace TaskTrackerClient.ViewModel
 {
@@ -34,10 +38,10 @@ namespace TaskTrackerClient.ViewModel
 
         public async void RefetchCards()
         {
-            _cards.Clear();
-            if (!socket.Connected) Connect();
-            //socket.Send(Encoding.Unicode.GetBytes(Requests.SendCards.ToString()));
-            RequestCards();
+            if (!socket.Connected) await Connect();
+            if (_cards.Count > 0) _cards.Clear();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendCards, "", true));
+            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
             List<Card> list = new List<Card>();
             byte[] data = new byte[] { };
             while (data.Length == 0)
@@ -54,29 +58,41 @@ namespace TaskTrackerClient.ViewModel
             }
         }
 
-        private async Task RequestCards()
+        public async void SearchCommad(TextBox tb)
         {
-            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendCards, ""));
-            await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
+            _cards.Clear();
+            if (string.IsNullOrWhiteSpace(tb.Text)) RefetchCards();
+            string temp = tb.Text.ToLower();
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SearchCard, temp, true));
+            socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
+            List<Card> list = new List<Card>();
+            byte[] data = new byte[] { };
+            while (data.Length == 0)
+            {
+                data = ReceiveAll(socket);
+            }
+            list = JsonSerializer.Deserialize<List<Card>>(Encoding.Unicode.GetString(data));
+            if (list.Count > 0)
+            {
+                foreach (Card s in list)
+                {
+                    _cards.Add(s);
+                }
+            }
         }
 
-        public void SendRemoveCard()
+        public async void SendRemoveCard()
         {
-            if (!socket.Connected) Connect();
-            //string requestType = JsonSerializer.Serialize(Requests.RemoveCard.ToString());
-            //string requestContent = JsonSerializer.Serialize(SelectedCard);
-            //socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
-            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.RemoveCard, JsonSerializer.Serialize(SelectedCard)));
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.RemoveCard, JsonSerializer.Serialize(SelectedCard), true));
             socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
 
-        public void SendNewOrUpdatedCard()
+        public async void SendNewOrUpdatedCard()
         {
-            if (!socket.Connected) Connect();
-            //string requestType = JsonSerializer.Serialize(Requests.ReceiveCard.ToString());
-            //string requestContent = JsonSerializer.Serialize(SelectedCard);
-            //socket.Send(Encoding.Unicode.GetBytes($"{requestType}&{requestContent}"));
-            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.ReceiveCard, JsonSerializer.Serialize(SelectedCard)));
+            if (!socket.Connected) await Connect();
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.ReceiveCard, JsonSerializer.Serialize(SelectedCard), true));
             socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
     }

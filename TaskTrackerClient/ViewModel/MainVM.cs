@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using TaskTrackerClient.View;
 using Card = Models.Card;
 
@@ -22,6 +23,22 @@ namespace TaskTrackerClient.ViewModel
     {
         readonly StatusVM _statusModel = new StatusVM();
         public ReadOnlyObservableCollection<Status> Statuses => _statusModel.PublicStatuses;
+
+        private Status selectedStatus;
+
+        public Status SelectedStatus
+        {
+            get { return _statusModel.SelectedStatus; }
+            set 
+            {
+                _statusModel.SelectedStatus = value;
+                RaisePropertyChanged(nameof(SelectedStatus));
+            }
+        }
+
+
+        readonly RoleVM _roleModel = new RoleVM();
+        public ReadOnlyObservableCollection<Role> Roles => _roleModel.PublicRoles;
 
         readonly CardVM _cardModel = new CardVM();
 
@@ -73,6 +90,28 @@ namespace TaskTrackerClient.ViewModel
             }
         }
 
+        private bool _isUsersListOpen = false;
+        public bool IsUsersListOpen
+        {
+            get { return _isUsersListOpen; }
+            set
+            {
+                _isUsersListOpen = value;
+                RaisePropertyChanged(nameof(IsUsersListOpen));
+            }
+        }
+
+        private bool _isStatusListOpen = false;
+        public bool IsStatusListOpen
+        {
+            get { return _isStatusListOpen; }
+            set
+            {
+                _isStatusListOpen = value;
+                RaisePropertyChanged(nameof(IsStatusListOpen));
+            }
+        }
+
         private bool _isDark = true;
         private string _themeName = "SystemTheme";
         public bool IsDark
@@ -94,6 +133,8 @@ namespace TaskTrackerClient.ViewModel
             }
         }
 
+        public ObservableCollection<ColumnVM> ColumnModel { get; set; }
+
         private void LoadCurrentUser()
         {
             if (Thread.CurrentPrincipal == null) return;
@@ -103,11 +144,20 @@ namespace TaskTrackerClient.ViewModel
         public DelegateCommand DarkThemeCommand { get; }
         public DelegateCommand LightThemeCommand { get; }
         public DelegateCommand ViewDetailsCommand { get; }
+        public DelegateCommand ToggleUserListVisible { get; }
+        public DelegateCommand ToggleStatusListVisible { get; }
         public DelegateCommand SaveCardCommand { get; }
         public DelegateCommand AddCardCommand { get; }
         public DelegateCommand RemoveCardCommand { get; }
+        public DelegateCommand SaveUserCommand { get; }
+        public DelegateCommand AddUserCommand { get; }
+        public DelegateCommand RemoveUserCommand { get; }
+        public DelegateCommand SaveStatusCommand { get; }
+        public DelegateCommand AddStatusCommand { get; }
+        public DelegateCommand RemoveStatusCommand { get; }
+        public DelegateCommand RefreshCommand { get; }
+        public DelegateCommand<TextBox> SearchCommand { get; }
         public DelegateCommand LogoutCommand { get; }
-        public ObservableCollection<ColumnVM> Columns { get; set; }
 
         public MainVM()
         {
@@ -135,6 +185,16 @@ namespace TaskTrackerClient.ViewModel
                 IsOpen = !IsOpen;
                 SelectedCard = null;
             });
+            ToggleUserListVisible = new DelegateCommand(() =>
+            {
+                IsUsersListOpen = !IsUsersListOpen;
+                SelectedUser = null;
+            });
+            ToggleStatusListVisible = new DelegateCommand(() =>
+            {
+                IsStatusListOpen = !IsStatusListOpen;
+                SelectedStatus = null;
+            });
             SaveCardCommand = new DelegateCommand(() =>
             {
                 _cardModel.SendNewOrUpdatedCard();
@@ -153,10 +213,63 @@ namespace TaskTrackerClient.ViewModel
                 _cardModel.SendRemoveCard();
                 ToggleModalAndRerenderColumns();
             });
+            SaveUserCommand = new DelegateCommand(() =>
+            {
+                _userModel.SendNewOrUpdatedUser();
+            });
+            AddUserCommand = new DelegateCommand(() =>
+            {
+                User temp = new User();
+                _userModel.AddUser(temp);
+                _userModel.SendNewOrUpdatedUser();
+                _userModel.RequestUsers();
+                SelectedUser = temp;
+            });
+            RemoveUserCommand = new DelegateCommand(() =>
+            {
+                _userModel.RemoveUser();
+                SelectedUser = Users.LastOrDefault();
+            });
+            SaveStatusCommand = new DelegateCommand(() =>
+            {
+                _statusModel.SendNewOrUpdatedStatus();
+                CreateColumns();
+            });
+            AddStatusCommand = new DelegateCommand(() =>
+            {
+                Status temp = new Status();
+                _statusModel.AddStatus(temp);
+                _statusModel.SendNewOrUpdatedStatus();
+                _statusModel.RequestStatuses();
+                SelectedStatus = temp;
+            });
+            RemoveStatusCommand = new DelegateCommand(() =>
+            {
+                _statusModel.RemoveStatus();
+                SelectedStatus = Statuses.LastOrDefault();
+                CreateColumns();
+            });
+            RefreshCommand = new DelegateCommand(() =>
+            {
+                _roleModel.RequestRoles();
+                _statusModel.RequestStatuses();
+                _userModel.RequestUsers();
+                RerenderColumns();
+            });
+            SearchCommand = new DelegateCommand<TextBox>((tb) => 
+            {
+                if (tb == null) return;
+                _cardModel.SearchCommad(tb);
+                CreateColumns();
+            });
             LogoutCommand = new DelegateCommand(() =>
             {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Disconnect(true);
+                if(socket.Connected)
+                {
+                    socket.Send(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(new RequestWrapper(Requests.ConnectionClose, "", true))));
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Disconnect(true);
+                }
                 Thread.CurrentPrincipal = null;
                 new Login().Show();
                 Application.Current.MainWindow.Close();
@@ -178,19 +291,20 @@ namespace TaskTrackerClient.ViewModel
 
         public void CreateColumns()
         {
-            if (Columns == null) Columns = new ObservableCollection<ColumnVM>();
-            if (Columns.Count > 0) Columns.Clear();
+            if (ColumnModel == null) ColumnModel = new ObservableCollection<ColumnVM>();
+            if (ColumnModel.Count > 0) ColumnModel.Clear();
             foreach (Status item in Statuses)
             {
-                Columns.Add(new ColumnVM(item, new ObservableCollection<Card>()));
+                ColumnModel.Add(new ColumnVM(item, new ObservableCollection<Card>()));
             }
 
             foreach (Card c in Cards)
             {
-                foreach (ColumnVM col in Columns)
+                foreach (ColumnVM col in ColumnModel)
                 {
                     if (c.Status.Equals(col.Status)) col.Cards.Add(c);
                 }
+                if(ColumnModel.Any(col => col.Status.Equals(c.Status))) continue;
             }
         }
     }

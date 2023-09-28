@@ -19,6 +19,7 @@ namespace Models
         RemoveStatus,
         RemoveUser,
         RemoveCard,
+        SearchCard,
         ConnectionClose
     }
 }

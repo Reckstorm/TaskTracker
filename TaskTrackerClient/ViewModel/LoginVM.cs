@@ -60,8 +60,8 @@ namespace TaskTrackerClient.ViewModel
         }
         public bool IsOpen { get; set; }
 
-        public BaseVM MainContext 
-        { 
+        public BaseVM MainContext
+        {
             get => mainContext;
             set
             {
@@ -81,9 +81,9 @@ namespace TaskTrackerClient.ViewModel
                 if (socket.Connected) socket.Disconnect(true);
                 Application.Current.Shutdown();
             });
-            LoginCommand = new DelegateCommand(() =>
+            LoginCommand = new DelegateCommand(async () =>
             {
-                if (!socket.Connected) Connect();
+                if (!socket.Connected) await Connect();
                 RequestUser();
                 byte[] data = new byte[] { };
                 while (data.Length == 0)
@@ -103,7 +103,7 @@ namespace TaskTrackerClient.ViewModel
 
         private async Task RequestUser()
         {
-            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendUser, "", Username, Password));
+            string req = JsonSerializer.Serialize(new RequestWrapper(Requests.SendUser, "", new User() { Email = Username, Password = Password }));
             await socket.SendAsync(Encoding.Unicode.GetBytes(req), SocketFlags.None);
         }
     }

@@ -6,7 +6,8 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:CC="clr-namespace:TaskTrackerClient.CustomControls"
         xmlns:DC="clr-namespace:TaskTrackerClient.ViewModel" 
-        xmlns:prism="http://prismlibrary.com/"
+        xmlns:prism="http://prismlibrary.com/" 
+        xmlns:converters="clr-namespace:TaskTrackerClient.Converters"
         mc:Ignorable="d"
         Style="{StaticResource MaterialDesignWindow}"
         Title="Application" 
@@ -16,8 +17,13 @@
     <Window.DataContext>
         <DC:MainVM/>
     </Window.DataContext>
+    <Window.Resources>
+        <converters:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
-        <CC:CardDetails Panel.ZIndex="10" IsOpen="{Binding IsOpen}"/>
+        <CC:CardDetails Panel.ZIndex="10" />
+        <CC:UserList Panel.ZIndex="10" />
+        <CC:StatusList Panel.ZIndex="10" />
         <DockPanel>
             <Border 
                 DockPanel.Dock="Top" 
@@ -27,7 +33,6 @@
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                         <Button 
                             Content="Logout"
-                            DockPanel.Dock="Right"
                             Margin="0,0,10,0"
                             Command="{Binding LogoutCommand}"></Button>
                         <TextBlock>
@@ -57,6 +62,18 @@
                        VerticalAlignment="Center"/>
                     </StackPanel>
                     <Button 
+                        Content="Users"
+                        DockPanel.Dock="Right"
+                        Margin="10,0,0,0"
+                        Visibility="{Binding Path=CurrentUser, Converter={StaticResource RoleToVisibilityConverter}, ConverterParameter=Admin}"
+                        Command="{Binding ToggleUserListVisible}"></Button>
+                    <Button 
+                        Content="Statuses"
+                        DockPanel.Dock="Right"
+                        Margin="10,0,0,0"
+                        Visibility="{Binding Path=CurrentUser, Converter={StaticResource RoleToVisibilityConverter}, ConverterParameter=Admin}"
+                        Command="{Binding ToggleStatusListVisible}"></Button>
+                    <Button 
                         Content="Add"
                         DockPanel.Dock="Right"
                         Margin="10,0,0,0"
@@ -64,7 +81,9 @@
                     <Button 
                         Content="Go"
                         DockPanel.Dock="Right"
-                        Margin="10,0,0,0"></Button>
+                        Margin="10,0,0,0"
+                        Command="{Binding SearchCommand}"
+                        CommandParameter="{Binding ElementName=Searchbar_tb}"></Button>
                     <TextBox 
                         x:Name="Searchbar_tb"
                         VerticalAlignment="Center"
@@ -75,12 +94,17 @@
                         FontWeight="DemiBold"
                         DockPanel.Dock="Right"
                         VerticalAlignment="Center"/>
+                    <Button 
+                        Content="Refresh"
+                        DockPanel.Dock="Right"
+                        Margin="0,0,10,0"
+                        Command="{Binding RefreshCommand}"></Button>
                 </DockPanel>
             </Border>
-            <ItemsControl ItemsSource="{Binding Columns}">
+            <ItemsControl ItemsSource="{Binding Path=ColumnModel}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid Columns="{Binding Columns.Count}"/>
+                        <UniformGrid Columns="{Binding ColumnModel.Count}"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>

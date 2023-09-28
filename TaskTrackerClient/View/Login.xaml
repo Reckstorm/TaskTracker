@@ -41,13 +41,14 @@
             <StackPanel 
                     Grid.Row="0"
                     HorizontalAlignment="Center"
-                VerticalAlignment="Bottom"
+                    VerticalAlignment="Center"
                     Orientation="Horizontal">
                 <TextBlock 
-                        Margin="0,15,29,0"
+                    Margin="0,0,30,0"
+                        VerticalAlignment="Center"
                         Text="Email:"></TextBlock>
                 <TextBox 
-                        Margin="0,0,0,0"
+                        VerticalAlignment="Center"
                         MinWidth="150"
                         MaxLength="50"
                         Text="{Binding Username}"></TextBox>
@@ -57,9 +58,11 @@
                     HorizontalAlignment="Center"
                     Orientation="Horizontal">
                 <TextBlock 
-                        Margin="0,15,5,0"
+                    Margin="0,0,5,0"
+                    VerticalAlignment="Center"
                         Text="Password:"></TextBlock>
                 <cc:BindablePasswordBox
+                    VerticalAlignment="Center"
                         Password="{Binding Password, Mode=TwoWay}"
                         MinWidth="150"></cc:BindablePasswordBox>
             </StackPanel>

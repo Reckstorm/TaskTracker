@@ -16,17 +16,24 @@ namespace Models
 
         public RequestWrapper() {}
 
-        public RequestWrapper(Requests requestType, string requestBody, string username, string password)
+        public RequestWrapper(Requests requestType, string requestBody, User? user, bool isAuthorized = false)
         {
             RequestType = requestType;
             RequestBody = requestBody;
-            Username = username;
-            Password = password;
+            User = user;
+            IsAuthorized = isAuthorized;
+        }
+
+        public RequestWrapper(Requests requestType, string requestBody, bool isAuthorized = false)
+        {
+            RequestType = requestType;
+            RequestBody = requestBody;
+            IsAuthorized = isAuthorized;
         }
 
         public Requests RequestType { get; set; }
         public string RequestBody { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public User? User { get; set; }
+        public bool IsAuthorized { get; set; }
     }
 }
