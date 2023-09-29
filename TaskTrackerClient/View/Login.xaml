@@ -25,12 +25,8 @@
     <Border 
             UseLayoutRounding="True"
             BorderBrush="Black"
-            Background="DarkGray"
             BorderThickness="1"
             CornerRadius="5">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="10" ShadowDepth="10" Color="Black"/>
-        </Border.Effect>
         <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"></RowDefinition>

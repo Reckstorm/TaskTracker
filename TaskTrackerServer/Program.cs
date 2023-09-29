@@ -29,8 +29,6 @@ while (true)
         });
     }
 }
-
-Console.ReadLine();
 async void ProcessConncetion(Socket? clientSocket)
 {
     try
@@ -38,12 +36,9 @@ async void ProcessConncetion(Socket? clientSocket)
         while (true)
         {
             if (!clientSocket.Connected) break;
-            List<RequestWrapper> requests = new List<RequestWrapper>();
             string temp = await ReceiveAll(clientSocket);
-            if (temp.Equals(string.Empty)) continue;
             RequestWrapper request = JsonSerializer.Deserialize<RequestWrapper>(temp);
             Console.ForegroundColor = ConsoleColor.Blue;
-
             if (request.RequestType.Equals(Requests.SendStatuses)) SendRequest(Requests.SendStatuses.ToString(), request, clientSocket);
             if (request.RequestType.Equals(Requests.SendRoles)) SendRequest(Requests.SendRoles.ToString(), request, clientSocket);
             if (request.RequestType.Equals(Requests.SendCards)) SendRequest(Requests.SendCards.ToString(), request, clientSocket);
@@ -58,7 +53,6 @@ async void ProcessConncetion(Socket? clientSocket)
             if (request.RequestType.Equals(Requests.RemoveUser)) RemoveRequest(Requests.RemoveUser.ToString(), request, clientSocket);
             if (request.RequestType.Equals(Requests.RemoveStatus)) RemoveRequest(Requests.RemoveStatus.ToString(), request, clientSocket);
             if (request.RequestType.Equals(Requests.ConnectionClose)) break;
-
         }
         clientSocket.Shutdown(SocketShutdown.Both);
         clientSocket.Disconnect(true);
@@ -71,28 +65,24 @@ async void ProcessConncetion(Socket? clientSocket)
         Console.ForegroundColor = ConsoleColor.Red;
     }
 }
+
 async Task<string> ReceiveAll(Socket socket)
 {
-    List<byte> buffer = new List<byte>();
+    byte[] buffer = new byte[512];
     StringBuilder sb = new StringBuilder();
-    while (socket.Available > 0)
+    int bytes;
+    do
     {
-        var currByte = new Byte[1];
-        var byteCounter = socket.Receive(currByte, currByte.Length, SocketFlags.None);
-
-        if (byteCounter.Equals(1))
-        {
-            buffer.Add(currByte[0]);
-        }
-    }
-    sb.Append(Encoding.Unicode.GetString(buffer.ToArray()));
+        bytes = await socket.ReceiveAsync(buffer, SocketFlags.None);
+        sb.Append(Encoding.Unicode.GetString(buffer, 0, bytes));
+    } while (socket.Available > 0);
     return sb.ToString();
 }
 
 void SendRequest(string request, RequestWrapper wrappedData, Socket currentSocket)
 {
     Console.WriteLine($"New {request} request from client {currentSocket.RemoteEndPoint}");
-    using (Context context = GetContext())
+    using (Context context = new Context())
     {
         if (request == Requests.SendUser.ToString() && !wrappedData.IsAuthorized)
         {
@@ -153,7 +143,7 @@ void SendRequest(string request, RequestWrapper wrappedData, Socket currentSocke
 void ReceiveRequest(string request, RequestWrapper wrappedData, Socket currentSocket)
 {
     Console.WriteLine($"New {request} request from client {currentSocket.RemoteEndPoint}");
-    using (Context context = GetContext())
+    using (Context context = new Context())
     {
         if (request == Requests.ReceiveCard.ToString() && wrappedData.IsAuthorized)
         {
@@ -192,7 +182,7 @@ void ReceiveRequest(string request, RequestWrapper wrappedData, Socket currentSo
 void RemoveRequest(string request, RequestWrapper wrappedData, Socket currentSocket)
 {
     Console.WriteLine($"New {request} request from client {currentSocket.RemoteEndPoint}");
-    using (Context context = GetContext())
+    using (Context context = new Context())
     {
         if (request == Requests.RemoveCard.ToString() && wrappedData.IsAuthorized)
         {
@@ -218,14 +208,5 @@ void RemoveRequest(string request, RequestWrapper wrappedData, Socket currentSoc
             context.SaveChanges();
             Console.WriteLine($"{request} has been processed by the server");
         }
-    }
-}
-
-Context GetContext()
-{
-    object locker = new object();
-    lock (locker)
-    {
-        return new Context();
     }
 }
